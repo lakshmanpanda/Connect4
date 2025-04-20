@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect 4 AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a237e;
+            --secondary-color: #283593;
+            --player-color: #f44336;
+            --ai-color: #ffd700;
+            --hover-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+            color: #333;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-container {
+            background: var(--primary-color);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: perspective(1000px) rotateX(5deg);
+            transition: transform 0.3s ease;
+        }
+
+        .game-container:hover {
+            transform: perspective(1000px) rotateX(0deg);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+            background: var(--secondary-color);
+            padding: 15px;
+            border-radius: 15px;
+            border: 4px solid var(--secondary-color);
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 12px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .column:hover {
+            transform: translateY(-5px);
+            background: var(--hover-color);
+            border-radius: 10px;
+        }
+
+        .cell {
+            width: 65px;
+            height: 65px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .cell.red {
+            background: var(--player-color);
+            animation: dropPiece 0.5s ease-out;
+        }
+
+        .cell.yellow {
+            background: var(--ai-color);
+            animation: dropPiece 0.5s ease-out;
+        }
+
+        @keyframes dropPiece {
+            0% {
+                transform: translateY(-400px);
+            }
+            60% {
+                transform: translateY(20px);
+            }
+            80% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-family: 'Poppins', sans-serif;
+            border: none;
+            border-radius: 25px;
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            background: var(--secondary-color);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .status {
+            margin-top: 25px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-align: center;
+            min-height: 2rem;
+        }
+
+        .win-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 50px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 1000;
+            animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .win-message h2 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 15px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 600px) {
+            .cell {
+                width: 45px;
+                height: 45px;
+            }
+
+            .board {
+                gap: 8px;
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .status {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Connect 4 AI</h1>
+    <div class="score-board">
+        <div class="score-item">
+            <div class="score-label">You</div>
+            <div class="score-value" id="player-score">0</div>
+        </div>
+        <div class="score-item">
+            <div class="score-label">AI</div>
+            <div class="score-value" id="ai-score">0</div>
+        </div>
+    </div>
+    <div class="game-container">
+        <div class="board" id="board"></div>
+    </div>
+    <div class="controls">
+        <button onclick="resetGame()">New Game</button>
+        <button onclick="toggleDifficulty()">Change Difficulty</button>
+    </div>
+    <div class="status" id="status">Your turn!</div>
+
+    <script>
+        const ROWS = 6;
+        const COLS = 7;
+        let board = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+        let gameOver = false;
+        let playerScore = 0;
+        let aiScore = 0;
+        let difficulty = 5; // Default difficulty
+
+        function createBoard() {
+            const boardElement = document.getElementById('board');
+            boardElement.innerHTML = '';
+
+            for (let col = 0; col < COLS; col++) {
+                const column = document.createElement('div');
+                column.className = 'column';
+                column.dataset.col = col;
+                column.onclick = () => makeMove(col);
+
+                for (let row = 0; row < ROWS; row++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    column.appendChild(cell);
+                }
+
+                boardElement.appendChild(column);
+            }
+        }
+
+        async function makeMove(col) {
+            if (gameOver) return;
+
+            try {
+                const response = await fetch('/api/move', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        column: col,
+                        difficulty: difficulty
+                    }),
+                });
+
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    updateBoard(data.board);
+                    // Highlight the AI's move
+                    highlightMove(data.ai_move);
+                    document.getElementById('status').textContent = "Your turn!";
+                } else if (data.status === 'win') {
+                    updateBoard(data.board);
+                    if (data.ai_move !== undefined) {
+                        highlightMove(data.ai_move);
+                    }
+                    gameOver = true;
+                    if (data.winner === 'player') {
+                        playerScore++;
+                    } else {
+                        aiScore++;
+                    }
+                    updateScores();
+                    showWinMessage(data.winner === 'player' ? 'You won!' : 'AI won!');
+                } else if (data.status === 'draw') {
+                    updateBoard(data.board);
+                    if (data.ai_move !== undefined) {
+                        highlightMove(data.ai_move);
+                    }
+                    gameOver = true;
+                    showWinMessage("It's a draw!");
+                } else if (data.status === 'error') {
+                    showError(data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError("Error making move");
+            }
+        }
+
+        function updateBoard(newBoard) {
+            for (let row = 0; row < ROWS; row++) {
+                for (let col = 0; col < COLS; col++) {
+                    const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+                    cell.className = 'cell';
+                    if (newBoard[row][col] === 1) {
+                        cell.classList.add('red');
+                    } else if (newBoard[row][col] === 2) {
+                        cell.classList.add('yellow');
+                    }
+                }
+            }
+        }
+
+        async function resetGame() {
+            try {
+                const response = await fetch('/api/reset', {
+                    method: 'POST',
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    gameOver = false;
+                    updateBoard(data.board);
+                    document.getElementById('status').textContent = "Your turn!";
+                    hideWinMessage();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError("Error resetting game");
+            }
+        }
+
+        function showWinMessage(message) {
+            const winMessage = document.createElement('div');
+            winMessage.className = 'win-message';
+            winMessage.id = 'win-message';
+            winMessage.innerHTML = `
+                <h2>${message}</h2>
+                <button onclick="resetGame()">Play Again</button>
+            `;
+            document.body.appendChild(winMessage);
+        }
+
+        function hideWinMessage() {
+            const winMessage = document.getElementById('win-message');
+            if (winMessage) {
+                winMessage.remove();
+            }
+        }
+
+        function showError(message) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.style.color = '#f44336';
+            setTimeout(() => {
+                status.style.color = 'var(--primary-color)';
+            }, 3000);
+        }
+
+        function updateScores() {
+            document.getElementById('player-score').textContent = playerScore;
+            document.getElementById('ai-score').textContent = aiScore;
+        }
+
+        function toggleDifficulty() {
+            const difficulties = [3, 5, 7]; // Easy, Medium, Hard
+            const currentIndex = difficulties.indexOf(difficulty);
+            difficulty = difficulties[(currentIndex + 1) % difficulties.length];
+            const difficultyNames = ['Easy', 'Medium', 'Hard'];
+            document.getElementById('status').textContent = 
+                `Difficulty set to ${difficultyNames[difficulties.indexOf(difficulty)]}`;
+        }
+
+        function highlightMove(col) {
+            const columns = document.querySelectorAll('.column');
+            columns[col].style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            setTimeout(() => {
+                columns[col].style.backgroundColor = '';
+            }, 500);
+        }
+
+        // Initialize the game
+        createBoard();
+        updateScores();
+    </script>
+</body>
+</html> 
