@@ -33,10 +33,10 @@ python app.py
 ## Screenshots
 
 ### Game Interface
-![Game UI](static/images/game_ui_1.png)
+![Game UI](images/game_ui_1.png)
 
-### AI in Action
-![Winning UI](static/images/game_ui_2.png)
+### Winning UI
+![Winning UI](images/game_ui_2.png)
 
 
 ## How to Play
