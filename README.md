@@ -29,6 +29,16 @@ python app.py
 
 3. Open your browser and navigate to `http://localhost:5000`
 
+
+## Screenshots
+
+### Game Interface
+![Game UI](static/images/game_ui_1.png)
+
+### AI in Action
+![Winning UI](static/images/game_ui_2.png)
+
+
 ## How to Play
 
 1. The game starts with you (red) making the first move
